@@ -7,7 +7,6 @@ CORS(app)
 
 UPLOAD_FOLDER = os.path.join(os.getcwd(), 'uploads')
 MODEL_MAP_FILE = os.path.join(os.getcwd(), 'model_map.json')
-HOST_IP = "172.16.0.138"
 
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 
@@ -31,20 +30,23 @@ def upload_model():
 
     obj_path = os.path.join(UPLOAD_FOLDER, obj_file.filename)
     obj_file.save(obj_path)
-    obj_url = f"http://{HOST_IP}:5000/uploads/{obj_file.filename}"
+
+    base_url = request.host_url.rstrip('/')
+
+    obj_url = f"{base_url}/uploads/{obj_file.filename}"
 
     mtl_url = None
     if mtl_file and mtl_file.filename.strip() != "":
         mtl_path = os.path.join(UPLOAD_FOLDER, mtl_file.filename)
         mtl_file.save(mtl_path)
-        mtl_url = f"http://{HOST_IP}:5000/uploads/{mtl_file.filename}"
+        mtl_url = f"{base_url}/uploads/{mtl_file.filename}"
 
     tex_urls = []
     for tex in tex_files:
         if tex and tex.filename.strip() != "":
             tex_path = os.path.join(UPLOAD_FOLDER, tex.filename)
             tex.save(tex_path)
-            tex_urls.append(f"http://{HOST_IP}:5000/uploads/{tex.filename}")
+            tex_urls.append(f"{base_url}/uploads/{tex.filename}")
 
     with open(MODEL_MAP_FILE, 'r', encoding='utf-8') as f:
         data = json.load(f)
@@ -83,4 +85,6 @@ def check_marker():
 
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=5000)
+    import os
+    port = int(os.environ.get('PORT', 5000))
+    app.run(host='0.0.0.0', port=port)
