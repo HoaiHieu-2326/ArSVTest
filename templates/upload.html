@@ -146,21 +146,38 @@
             .then(data => {
                 if (data.exists) {
                     if (confirm(`Marker "${markerName}" đã tồn tại. Bạn có muốn ghi đè không?`)) {
-                        // Giả lập upload thành công
-                        showToast("Upload thành công!");
+                        sendFormData();
                     } else {
                         alert("Vui lòng sửa lại tên marker rồi upload.");
                     }
                 } else {
-                    // Giả lập upload thành công
-                    showToast("Upload thành công!");
+                    sendFormData();
                 }
             })
             .catch(err => {
                 console.error(err);
-                showToast("Upload thành công!");
+                sendFormData();
             });
     });
+
+    function sendFormData() {
+        const form = document.getElementById("uploadForm");
+        const formData = new FormData(form);
+
+        fetch("/", {
+            method: "POST",
+            body: formData
+        })
+        .then(res => res.text())
+        .then(text => {
+            showToast("Upload thành công!");
+            console.log(text);
+        })
+        .catch(err => {
+            showToast("Upload thất bại!");
+            console.error(err);
+        });
+    }
     </script>
 </body>
 </html>
