@@ -6,7 +6,7 @@ app = Flask(__name__)
 CORS(app)
 
 UPLOAD_FOLDER = os.path.join(os.getcwd(), 'uploads')
-MODEL_MAP_FILE = os.path.join(os.getcwd(), 'model_map.json')
+MODEL_MAP_FILE = os.path.join(app.root_path, 'model_map.json')
 
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 
@@ -88,3 +88,4 @@ if __name__ == '__main__':
     import os
     port = int(os.environ.get('PORT', 5000))
     app.run(host='0.0.0.0', port=port)
+
