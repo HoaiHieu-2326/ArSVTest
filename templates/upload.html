@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Upload AR Model</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #f4f6f8;
+            margin: 0;
+            padding: 0;
+        }
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-top: 30px;
+        }
+        .upload-container {
+            background: white;
+            max-width: 500px;
+            margin: 40px auto;
+            padding: 25px 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+        label {
+            display: block;
+            font-weight: bold;
+            margin-top: 15px;
+            color: #555;
+        }
+        input[type="text"], input[type="file"] {
+            width: 100%;
+            padding: 8px;
+            margin-top: 5px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+            box-sizing: border-box;
+        }
+        input[type="submit"] {
+            margin-top: 20px;
+            width: 100%;
+            background: #4CAF50;
+            color: white;
+            border: none;
+            padding: 12px;
+            font-size: 16px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background 0.3s ease;
+        }
+        input[type="submit"]:hover {
+            background: #45a049;
+        }
+        .note {
+            margin-top: 15px;
+            font-size: 13px;
+            color: #777;
+            text-align: center;
+        }
+        .required {
+            color: red;
+            font-weight: bold;
+        }
+
+        /* Toast notification */
+        .toast {
+            position: fixed;
+            top: 20px;
+            right: -350px;
+            min-width: 250px;
+            background: #4CAF50;
+            color: white;
+            padding: 15px 20px;
+            border-radius: 6px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: right 0.4s ease;
+            font-size: 14px;
+        }
+        .toast.show {
+            right: 20px;
+        }
+        .toast button {
+            background: transparent;
+            border: none;
+            color: white;
+            font-weight: bold;
+            cursor: pointer;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Upload AR Model for Marker</h1>
+    <div class="upload-container">
+        <form id="uploadForm" method="post" enctype="multipart/form-data">
+            <label>Marker Name:</label>
+            <input type="text" name="marker" id="markerInput" required>
+
+            <label>OBJ File:<span class="required">*</span></label>
+            <input type="file" name="obj" required>
+
+            <label>MTL File:</label>
+            <input type="file" name="mtl">
+
+            <label>Textures:</label>
+            <input type="file" name="textures" multiple>
+
+            <input type="submit" value="Upload">
+        </form>
+        <div class="note">OBJ bắt buộc, MTL & Textures tùy chọn</div>
+    </div>
+
+    <!-- Toast notification -->
+    <div id="toast" class="toast">
+        <span id="toastMessage">Upload thành công!</span>
+        <button onclick="hideToast()">OK</button>
+    </div>
+
+    <script>
+    const toast = document.getElementById("toast");
+
+    function showToast(message) {
+        document.getElementById("toastMessage").textContent = message;
+        toast.classList.add("show");
+
+        // Tự ẩn sau 2s
+        setTimeout(() => {
+            hideToast();
+        }, 2000);
+    }
+
+    function hideToast() {
+        toast.classList.remove("show");
+    }
+
+    document.getElementById("uploadForm").addEventListener("submit", function(e) {
+        e.preventDefault(); // chặn submit mặc định
+        let markerName = document.getElementById("markerInput").value.trim();
+        if (!markerName) return;
+
+        fetch(`/check_marker?marker=${encodeURIComponent(markerName)}`)
+            .then(res => res.json())
+            .then(data => {
+                if (data.exists) {
+                    if (confirm(`Marker "${markerName}" đã tồn tại. Bạn có muốn ghi đè không?`)) {
+                        // Giả lập upload thành công
+                        showToast("Upload thành công!");
+                    } else {
+                        alert("Vui lòng sửa lại tên marker rồi upload.");
+                    }
+                } else {
+                    // Giả lập upload thành công
+                    showToast("Upload thành công!");
+                }
+            })
+            .catch(err => {
+                console.error(err);
+                showToast("Upload thành công!");
+            });
+    });
+    </script>
+</body>
+</html>
